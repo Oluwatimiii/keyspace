@@ -45,28 +45,5 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-
-  //Protected Routes
-  // if (
-  //   !user &&
-  //   request.nextUrl.pathname.startsWith('/dashboard')
-  // ) {
-  //   // no user, potentially respond by redirecting the user to the login page
-  //   const url = request.nextUrl.clone()
-  //   url.pathname = '/'
-  //   return NextResponse.redirect(url)
-  // }
-
-  // if (
-  //   user &&
-  //   request.nextUrl.pathname.startsWith('/login') &&
-  //   request.nextUrl.pathname.startsWith('/signup')
-  // ) {
-  //   // if  user is logged in, potentially user should not be able to access the auth pages again
-  //   const url = request.nextUrl.clone()
-  //   url.pathname = '/dashboard'
-  //   return NextResponse.redirect(url)
-  // }
-
   return supabaseResponse
 }

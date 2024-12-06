@@ -1,4 +1,3 @@
-import { LogoutButton } from "@/components/Auth/LogoutButton"
 import { Button } from "@/components/ui/button"
 
 export default function DashboardPage() {
@@ -15,9 +14,6 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold mb-2">Your Bookings</h2>
           <p className="text-muted-foreground mb-4">You have no active bookings.</p>
           <Button>Find a Space</Button>
-        </div>
-        <div>
-          <LogoutButton />
         </div>
       </div>
     </div>
