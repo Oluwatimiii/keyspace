@@ -104,7 +104,7 @@ export default function AboutPage() {
             <h2 className="text-4xl font-bold mb-8 text-space-darkgreen">Our Mission</h2>
             <p className="text-lg mb-6 text-space-blacks">
               Keyspace is a revolutionary platform connecting property owners with those seeking the perfect space. 
-              Whether you're looking for a short-term rental, a long-term lease, or a unique venue for your next event, 
+              Whether you&apos;re looking for a short-term rental, a long-term lease, or a unique venue for your next event, 
               Keyspace has you covered.
             </p>
             <p className="text-lg text-space-blacks">

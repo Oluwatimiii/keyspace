@@ -4,25 +4,6 @@ import prop3 from "@/assets/images/prop3.jpg"
 import prop4 from "@/assets/images/prop4.jpg"
 import prop5 from "@/assets/images/prop5.jpg"
 import prop6 from "@/assets/images/prop6.jpg"
-import prop7 from "@/assets/images/prop6.jpg"
-import prop8 from "@/assets/images/prop6.jpg"
-import prop9 from "@/assets/images/prop6.jpg"
-import prop10 from "@/assets/images/prop6.jpg"
-import prop11 from "@/assets/images/prop6.jpg"
-import prop12 from "@/assets/images/prop6.jpg"
-import prop13 from "@/assets/images/prop6.jpg"
-import prop14 from "@/assets/images/prop6.jpg"
-import prop15 from "@/assets/images/prop6.jpg"
-import prop16 from "@/assets/images/prop6.jpg"
-import prop17 from "@/assets/images/prop6.jpg"
-import prop18 from "@/assets/images/prop6.jpg"
-import prop19 from "@/assets/images/prop6.jpg"
-import prop20 from "@/assets/images/prop6.jpg"
-import prop21 from "@/assets/images/prop6.jpg"
-import prop22 from "@/assets/images/prop6.jpg"
-import prop23 from "@/assets/images/prop6.jpg"
-import prop24 from "@/assets/images/prop6.jpg"
-import prop25 from "@/assets/images/prop6.jpg"
 
 export interface ExclusiveProperty {
     id: number;
@@ -115,7 +96,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Mountain Cabin",
         location: "Aspen, CO",
         price: "$1,800,000",
-        imageUrl: prop7.src,
+        imageUrl: "https://images.pexels.com/photos/1475938/pexels-photo-1475938.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A cozy cabin with stunning mountain views and a private hot tub.",
         status: "For Sale",
         landSize: "8,000 sqft",
@@ -127,7 +108,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Lakefront Retreat",
         location: "Lake Tahoe, NV",
         price: "$4,000,000",
-        imageUrl: prop8.src,
+        imageUrl: "https://images.pexels.com/photos/164522/pexels-photo-164522.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A serene retreat with lakefront access and picturesque views.",
         status: "For Sale",
         landSize: "12,000 sqft",
@@ -139,7 +120,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Historic Townhouse",
         location: "Charleston, SC",
         price: "$1,600,000",
-        imageUrl: prop9.src,
+        imageUrl: "https://images.pexels.com/photos/269077/pexels-photo-269077.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description: "A beautiful townhouse with historic charm and modern updates.",
         status: "For Sale",
         landSize: "2,500 sqft",
@@ -151,7 +132,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Tropical Villa",
         location: "Miami, FL",
         price: "$6,500,000",
-        imageUrl: prop10.src,
+        imageUrl: "https://images.pexels.com/photos/323705/pexels-photo-323705.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description: "A tropical paradise with a private pool and lush gardens.",
         status: "For Rent",
         landSize: "9,000 sqft",
@@ -163,7 +144,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Desert Oasis",
         location: "Phoenix, AZ",
         price: "$2,000,000",
-        imageUrl: prop11.src,
+        imageUrl: "https://images.pexels.com/photos/2121121/pexels-photo-2121121.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description: "A modern home with desert landscaping and stunning sunset views.",
         status: "For Sale",
         landSize: "7,000 sqft",
@@ -175,7 +156,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Eco-Friendly Home",
         location: "Portland, OR",
         price: "$1,900,000",
-        imageUrl: prop12.src,
+        imageUrl: "https://images.pexels.com/photos/209315/pexels-photo-209315.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description: "A sustainable home with energy-efficient features and green spaces.",
         status: "For Sale",
         landSize: "5,500 sqft",
@@ -187,7 +168,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Cliffside Estate",
         location: "Big Sur, CA",
         price: "$10,000,000",
-        imageUrl: prop13.src,
+        imageUrl: "https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description: "A breathtaking estate perched on a cliff with ocean views.",
         status: "For Sale",
         landSize: "25,000 sqft",
@@ -199,7 +180,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Suburban Haven",
         location: "Dallas, TX",
         price: "$1,300,000",
-        imageUrl: prop14.src,
+        imageUrl: "https://images.pexels.com/photos/415687/pexels-photo-415687.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A spacious home with a pool and family-friendly amenities.",
         status: "For Rent",
         landSize: "10,000 sqft",
@@ -211,7 +192,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Modern Farmhouse",
         location: "Austin, TX",
         price: "$2,700,000",
-        imageUrl: prop15.src,
+        imageUrl: "https://images.pexels.com/photos/1438834/pexels-photo-1438834.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A contemporary farmhouse with a rustic touch and stunning interiors.",
         status: "For Sale",
         landSize: "8,500 sqft",
@@ -223,7 +204,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Island Paradise",
         location: "Hawaii, HI",
         price: "$9,000,000",
-        imageUrl: prop16.src,
+        imageUrl: "https://images.pexels.com/photos/460695/pexels-photo-460695.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A luxurious island property with oceanfront access and tropical views.",
         status: "For Sale",
         landSize: "30,000 sqft",
@@ -235,7 +216,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Modern Bungalow",
         location: "Seattle, WA",
         price: "$1,800,000",
-        imageUrl: prop17.src,
+        imageUrl: "https://images.pexels.com/photos/534228/pexels-photo-534228.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A stylish bungalow with minimalist design and panoramic city views.",
         status: "For Sale",
         landSize: "6,000 sqft",
@@ -247,7 +228,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Countryside Villa",
         location: "Savannah, GA",
         price: "$2,300,000",
-        imageUrl: prop18.src,
+        imageUrl: "https://images.pexels.com/photos/208736/pexels-photo-208736.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A charming villa surrounded by lush greenery and peaceful landscapes.",
         status: "For Sale",
         landSize: "12,000 sqft",
@@ -259,7 +240,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Luxury Chalet",
         location: "Park City, UT",
         price: "$7,500,000",
-        imageUrl: prop19.src,
+        imageUrl: "https://images.pexels.com/photos/3639539/pexels-photo-3639539.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A luxury chalet with ski-in/ski-out access and high-end finishes.",
         status: "For Sale",
         landSize: "18,000 sqft",
@@ -271,7 +252,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Classic Manor",
         location: "Philadelphia, PA",
         price: "$4,200,000",
-        imageUrl: prop20.src,
+        imageUrl: "https://images.pexels.com/photos/987550/pexels-photo-987550.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A stately manor with elegant architecture and sprawling grounds.",
         status: "For Rent",
         landSize: "20,000 sqft",
@@ -283,7 +264,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Mediterranean Villa",
         location: "Santa Barbara, CA",
         price: "$6,800,000",
-        imageUrl: prop21.src,
+        imageUrl: "https://images.pexels.com/photos/7579042/pexels-photo-7579042.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description: "A Mediterranean-style villa with beautiful courtyards and fountains.",
         status: "For Sale",
         landSize: "15,000 sqft",
@@ -295,7 +276,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Modern Penthouse",
         location: "Los Angeles, CA",
         price: "$10,500,000",
-        imageUrl: prop22.src,
+        imageUrl: "https://images.pexels.com/photos/3555615/pexels-photo-3555615.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description: "A luxurious penthouse with panoramic city views and designer finishes.",
         status: "For Rent",
         landSize: "4,000 sqft",
@@ -307,7 +288,7 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "Riverside Cottage",
         location: "Boise, ID",
         price: "$1,100,000",
-        imageUrl: prop23.src,
+        imageUrl: "https://images.pexels.com/photos/1658083/pexels-photo-1658083.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A quaint cottage with riverside access and a peaceful environment.",
         status: "For Sale",
         landSize: "9,000 sqft",
@@ -319,25 +300,13 @@ export const exclusiveProperties: ExclusiveProperty[] = [
         name: "City Center Loft",
         location: "Denver, CO",
         price: "$2,800,000",
-        imageUrl: prop24.src,
+        imageUrl: "https://images.pexels.com/photos/449023/pexels-photo-449023.jpeg?auto=compress&cs=tinysrgb&w=600",
         description: "A modern loft in the city center with an open-plan layout and views.",
         status: "For Rent",
         landSize: "3,000 sqft",
         numberOfBeds: 2,
         numberOfBaths: 2
     },
-    {
-        id: 25,
-        name: "Palatial Estate",
-        location: "Orlando, FL",
-        price: "$15,000,000",
-        imageUrl: prop25.src,
-        description: "A grand estate with opulent interiors and extensive amenities.",
-        status: "For Sale",
-        landSize: "50,000 sqft",
-        numberOfBeds: 10,
-        numberOfBaths: 8
-    }
 ];
 
 export interface AgentProfile {

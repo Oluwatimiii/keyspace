@@ -1,7 +1,12 @@
+"use client"
+
 import EstimateValue from "@/components/Custom/EstimateValue";
 import { Dash, HierarchySquare, MoneySend } from "iconsax-react";
+import { useRouter } from "next/navigation";
 
 export default function ListPropertyPage() {
+  const router = useRouter()
+
   return (
     <section className="font-urbanist mx-auto">
       <div className="min-h-screen w-full bg-[url('../assets/images/heropic.jpg')] bg-no-repeat bg-top bg-cover max-w-7xl">
@@ -46,7 +51,7 @@ export default function ListPropertyPage() {
               Connect with top-rated local agents who will guide you through the
               selling process.
             </p>
-            <button className="bg-space-darkgreen text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors">
+            <button onClick={() => router.push("/agent")} className="bg-space-darkgreen text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors">
               Find an Agent
             </button>
           </div>

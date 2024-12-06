@@ -1,28 +1,7 @@
-'use client'
-
 import { LogoutButton } from "@/components/Auth/LogoutButton"
 import { Button } from "@/components/ui/button"
-import { useAuthStore } from "@/store/authStore"
-import { createClient } from "@/utils/supabase/client"
-import { redirect } from "next/navigation"
-import { useEffect } from "react"
 
 export default function DashboardPage() {
-  const supabase = createClient()
-  const store = useAuthStore()
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data, error } = await supabase.auth.getUser()
-      if (error || !data?.user) {
-        redirect('/login')
-      } else {
-        store.setUser(data?.user)
-      }
-    }
-    
-    checkAuth()
-  }, [])
 
   return (
     <div className="container mx-auto px-4 py-8">

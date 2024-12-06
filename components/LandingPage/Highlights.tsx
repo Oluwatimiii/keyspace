@@ -9,7 +9,7 @@ import {
 } from "iconsax-react";
 
 interface Highlight {
-  icon: any;
+  icon: React.ReactNode;
   title: string;
   description: string;
 }
