@@ -83,7 +83,6 @@ const Accordion: React.FC = () => {
   const handleContactSupport = () => {
     // Implement contact support functionality
     router.push('/contact')
-    console.log("Contact support clicked");
   };
 
   return (

@@ -26,7 +26,7 @@
     "iconsax-react": "^0.0.8",
     "lucide-react": "^0.460.0",
     "motion": "^12.0.0-alpha.2",
-    "next": "15.0.3",
+    "next": "^15.0.4",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "tailwind-merge": "^2.5.5",

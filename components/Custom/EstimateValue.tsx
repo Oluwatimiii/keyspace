@@ -10,8 +10,6 @@ export default function EstimateValue() {
 
   const handleEstimateSubmit = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log("Address for estimation:", address);
-    // Add your estimation logic here
   };
 
   return (

@@ -25,7 +25,6 @@ export default function Hero() {
 
   const handleSubmit = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log(inputValue);
   };
 
   return (

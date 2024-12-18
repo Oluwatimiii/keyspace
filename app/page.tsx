@@ -17,7 +17,6 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log("userdata", user)
 
   return (
     <UserProvider user={user}>
