@@ -12,10 +12,10 @@ import {
   Calendar,
   Phone,
   Mail,
-  User,
+  CheckIcon,
   Home
 } from 'lucide-react'
-import { ExclusiveProperty, exclusiveProperties } from '@/assets/data/data'
+import { ExclusiveProperty, agents, exclusiveProperties } from '@/assets/data/data'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import prop5 from "@/assets/images/prop3.jpg"
@@ -26,6 +26,10 @@ export default function PropertyDetails() {
   const { id } = useParams()
   const [property, setProperty] = useState<ExclusiveProperty | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [randomAgent, setRandomAgent] = useState(() => {
+    return agents[Math.floor(Math.random() * agents.length)]
+  })
+
 
   const images = [
     property?.imageUrl,
@@ -60,7 +64,7 @@ export default function PropertyDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Image Carousel */}
       <div className="relative h-[70vh] w-full bg-black">
         <div className="relative h-full w-full">
@@ -99,50 +103,50 @@ export default function PropertyDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div className="bg-space-darkgreen text-space-greens rounded-lg shadow-sm p-6 mb-8">
               <h1 className="text-4xl font-bold mb-4">{property.name}</h1>
-              <div className="flex items-center text-gray-600 mb-6">
-                <MapPin className="w-5 h-5 mr-2" />
-                <span className="text-lg">{property.location}</span>
+              <div className="flex items-center  mb-6">
+                <MapPin className="w-5 h-5 mr-2 text-space-fades" />
+                <span className="text-lg text-space-greens">{property.location}</span>
               </div>
               
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg">
-                  <BedDouble className="w-6 h-6 text-gray-600" />
-                  <div>
-                    <div className="font-semibold">{property.numberOfBeds}</div>
-                    <div className="text-sm text-gray-600">Bedrooms</div>
+                  <BedDouble className="w-6 h-6 text-space-darkgreen" />
+                  <div className="font-semibold text-space-darkgreen">
+                    <div>{property.numberOfBeds}</div>
+                    <div className="text-sm">Bedrooms</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg">
-                  <Bath className="w-6 h-6 text-gray-600" />
-                  <div>
-                    <div className="font-semibold">{property.numberOfBaths}</div>
-                    <div className="text-sm text-gray-600">Bathrooms</div>
+                  <Bath className="w-6 h-6 text-space-darkgreen" />
+                  <div className="font-semibold text-space-darkgreen">
+                    <div>{property.numberOfBaths}</div>
+                    <div className="text-sm">Bathrooms</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg">
-                  <Ruler className="w-6 h-6 text-gray-600" />
-                  <div>
-                    <div className="font-semibold">{property.landSize}</div>
-                    <div className="text-sm text-gray-600">Land Size</div>
+                  <Ruler className="w-6 h-6 text-space-darkgreen" />
+                  <div className="font-semibold text-space-darkgreen">
+                    <div>{property.landSize}</div>
+                    <div className="text-sm">Land Size</div>
                   </div>
                 </div>
               </div>
 
-              <div className="text-3xl font-bold text-space-darkgreen mb-6">
+              <div className="text-3xl font-bold text-space-greens mb-6">
                 {property.price}
               </div>
 
               <div className="prose max-w-none">
                 <h2 className="text-2xl font-semibold mb-4">About This Property</h2>
-                <p className="text-gray-700 mb-6">{property.description}</p>
+                <p className="text-gray-100 mb-6">{property.description}</p>
 
                 <h2 className="text-2xl font-semibold mb-4">Key Features</h2>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {['Modern Kitchen', 'Garden', 'Parking', 'Security System', 'Central Heating', 'Air Conditioning'].map((feature) => (
                     <div key={feature} className="flex items-center gap-2">
-                      <Home className="w-5 h-5 text-space-darkgreen" />
+                      <CheckIcon className="w-5 h-5 text-space-fades" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -159,28 +163,28 @@ export default function PropertyDetails() {
                   <div className="text-xl font-semibold mb-6">Contact Agent</div>
                   
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="relative w-16 h-16 rounded-full overflow-hidden">
+                    <div className="relative w-16 h-16 shadow-md rounded-full overflow-hidden">
                       <Image
-                        src="/api/placeholder/64/64"
-                        alt="Agent"
+                        src={randomAgent.profilePictureUrl}
+                        alt={randomAgent.name}
                         fill
                         className="object-cover"
                       />
                     </div>
                     <div>
-                      <div className="font-semibold">John Smith</div>
-                      <div className="text-gray-600">Senior Property Agent</div>
+                      <div className="font-semibold">{randomAgent?.name}</div>
+                      <div className="text-space-darkgreen">Agent For {randomAgent.specialization}</div>
                     </div>
                   </div>
 
                   <div className="space-y-4 mb-6">
                     <div className="flex items-center gap-3">
-                      <Phone className="w-5 h-5 text-gray-600" />
-                      <span>+1 234 567 890</span>
+                      <Phone className="w-5 h-5 text-space-darkgreen" />
+                      <span>{randomAgent.phoneNumber}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-gray-600" />
-                      <span>agent@example.com</span>
+                      <Mail className="w-5 h-5 text-space-darkgreen" />
+                      <span>{randomAgent.contactEmail}</span>
                     </div>
                   </div>
 

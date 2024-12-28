@@ -330,7 +330,7 @@ export const agents: AgentProfile[] = [
         experience: "10 years",
         contactEmail: "jessica.brown@realtypro.com",
         phoneNumber: "(323) 555-1234",
-        profilePictureUrl: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        profilePictureUrl: "https://images.pexels.com/photos/1036622/pexels-photo-1036622.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         specialization: "Luxury Estates",
         rating: 4.9,
         bio: "Jessica is a top-rated agent specializing in luxury estates and beachfront properties. She is known for her dedication to clients and market expertise."

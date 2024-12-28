@@ -7,19 +7,9 @@ import Highlights from "@/components/LandingPage/Highlights";
 import Properties from "@/components/LandingPage/Properties";
 import Sponsors from "@/components/LandingPage/Sponsors";
 import TestimonialCarousel from "@/components/LandingPage/Testimonial";
-import { UserProvider } from "@/hooks/Providers/UserProvider";
-import { createClient } from "@/utils/supabase/server";
 
-export default async function Home() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-
+export default function Home() {
   return (
-    <UserProvider user={user}>
       <main className="pt-16">
         <Hero />
         <Sponsors />
@@ -31,6 +21,5 @@ export default async function Home() {
         <TestimonialCarousel />
         <ScrollToTop />
       </main>
-    </UserProvider>
   );
 }

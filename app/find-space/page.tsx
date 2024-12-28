@@ -20,11 +20,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import FindSpaceLoading from "./loading";
+import { useRouter } from "next/navigation";
 
 export default function FindSpacePage() {
   const [properties, setProperties] =
     useState<ExclusiveProperty[]>(exclusiveProperties);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const router = useRouter()
 
   return (
     <Suspense fallback={<FindSpaceLoading />}>
@@ -95,8 +98,9 @@ export default function FindSpacePage() {
             </h2>
             <div className="flex gap-4">
               <Button
+                onClick={() => router.push("profile/favorites")}
                 variant="outline"
-                className="rounded-full flex items-center gap-2"
+                className="rounded-full flex items-center gap-2 cursor-pointer"
               >
                 <Heart size={20} />
                 Favorites
