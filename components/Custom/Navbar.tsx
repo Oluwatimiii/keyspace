@@ -322,7 +322,7 @@ export default function Navbar() {
                     className={`block px-3 mx-2 py-2 border-l-4 text-base font-medium ${
                       (item.href === "/" && pathname === "/") ||
                       (item.href !== "/" && pathname.includes(item.href))
-                        ? "bg-primary-foreground border-l-space-greens text-white bg-black border-[1px] border-space-grays"
+                        ? "bg-primary-foreground border-l-space-greens text-space-darkgreen bg-black border-[1px] border-space-grays"
                         : "border-transparent text-gray-300 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
                     }`}
                   >

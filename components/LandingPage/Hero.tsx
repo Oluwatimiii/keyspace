@@ -47,13 +47,12 @@ export default function Hero() {
               value={inputValue}
               onChange={handleInputChange}
               placeholder="Browse keyspace properties..."
-              className="p-4 focus:outline-none bg-transparent w-[60%] placeholder-gray-400"
+              className="p-4 focus:outline-none bg-transparent placeholder-gray-400"
             />
             <button
               onClick={handleSubmit}
               className="flex items-center gap-2 rounded-[11px] w-[40%] justify-center bg-space-darkgreen text-white text-sm py-3 px-2 hover:bg-space-darkgreen/90 transition-all duration-75"
             >
-              Search a space
               <span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
