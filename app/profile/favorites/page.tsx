@@ -25,6 +25,8 @@ export default async function FavoritesPage() {
     .select("productId")
     .eq("userId", user.id);
 
+    console.log(favoriteProperties)
+
   if (error) {
     console.error("Error fetching favorite properties:", error);
   }

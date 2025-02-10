@@ -21,10 +21,12 @@ import { Card, CardContent } from '@/components/ui/card'
 import prop5 from "@/assets/images/prop3.jpg"
 import prop4 from "@/assets/images/prop4.jpg"
 import prop3 from "@/assets/images/prop2.jpg"
+import { ScheduleTour } from '@/components/FindSpacePage/ScheduleTour'
 
 export default function PropertyDetails() {
   const { id } = useParams()
   const [property, setProperty] = useState<ExclusiveProperty | null>(null)
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [randomAgent, setRandomAgent] = useState(() => {
     return agents[Math.floor(Math.random() * agents.length)]
@@ -189,7 +191,7 @@ export default function PropertyDetails() {
                   </div>
 
                   <div className="space-y-3">
-                    <Button className="w-full bg-space-darkgreen hover:bg-space-darkgreen/90">
+                    <Button onClick={() => setIsScheduleModalOpen(true)} className="w-full bg-space-darkgreen hover:bg-space-darkgreen/90">
                       <Calendar className="w-4 h-4 mr-2" />
                       Schedule a Tour
                     </Button>
@@ -204,6 +206,12 @@ export default function PropertyDetails() {
           </div>
         </div>
       </div>
+
+      <ScheduleTour 
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        propertyName={property.name}
+      />
     </div>
   )
 }

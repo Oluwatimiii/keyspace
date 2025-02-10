@@ -66,7 +66,7 @@ export default function ListPropertyPage() {
               Become a Keyspace partner and list your property directly on our
               platform.
             </p>
-            <button className="bg-space-darkgreen text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors">
+            <button onClick={() => router.push("/list-property/listing")} className="bg-space-darkgreen text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors">
               Start Listing
             </button>
           </div>
