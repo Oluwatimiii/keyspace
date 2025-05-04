@@ -1,36 +1,51 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ExclusiveProperty, exclusiveProperties } from '@/assets/data/data'
+import { ExclusiveProperty } from '@/assets/data/data'
 import FavoritePropertiesSkeleton from './FavoritePropertiesSkeleton'
 import PropertyCard from '../Custom/PropertyCard'
+import { getSupabaseClient } from "@/utils/supabase/client"
 
-export default function FavoriteProperties({ favoritePropertyIds }: { favoritePropertyIds: number[] }) {
+export default function FavoriteProperties({ favoritePropertyIds }: { favoritePropertyIds: string[] }) {
   const [favoriteProperties, setFavoriteProperties] = useState<ExclusiveProperty[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const fetchFavoriteProperties = () => {
-      setIsLoading(true)
-      setTimeout(() => {
-        const filteredProperties = exclusiveProperties.filter(property => {
-          const propertyId = Number(property.id);
-          const isIncluded = favoritePropertyIds.some(favId => Number(favId) === propertyId);
-          return isIncluded;
-        });
-
-        setFavoriteProperties(filteredProperties)
-        setIsLoading(false)
-      }, 1000)
+    const fetchFavoriteProperties = async () => {
+      if (!favoritePropertyIds.length) {
+        setFavoriteProperties([]);
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsLoading(true);
+      const supabase = getSupabaseClient();
+      
+      try {
+        const { data, error } = await supabase
+          .from("properties")
+          .select("*")
+          .in('propertyId', favoritePropertyIds);
+          
+        if (error) {
+          throw error;
+        }
+        
+        setFavoriteProperties(data || []);
+      } catch (error) {
+        console.error("Error fetching favorite properties:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
-    fetchFavoriteProperties()
-  }, [favoritePropertyIds])
+    fetchFavoriteProperties();
+  }, [favoritePropertyIds]);
 
-  const handleFavoriteChange = (propertyId: number, isFavorite: boolean) => {
+  const handleFavoriteChange = (propertyId: string, isFavorite: boolean) => {
     if (!isFavorite) {
       setFavoriteProperties(prevProperties => 
-        prevProperties.filter(property => property.id !== propertyId)
+        prevProperties.filter(property => property.propertyId !== propertyId)
       )
     }
   }

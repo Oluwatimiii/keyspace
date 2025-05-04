@@ -15,23 +15,22 @@ import {
   CheckIcon,
   Home
 } from 'lucide-react'
-import { ExclusiveProperty, agents, exclusiveProperties } from '@/assets/data/data'
+import { ExclusiveProperty, AgentProfile } from '@/assets/data/data'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import prop5 from "@/assets/images/prop3.jpg"
 import prop4 from "@/assets/images/prop4.jpg"
 import prop3 from "@/assets/images/prop2.jpg"
 import { ScheduleTour } from '@/components/FindSpacePage/ScheduleTour'
+import { getSupabaseClient } from '@/utils/supabase/client'
 
 export default function PropertyDetails() {
   const { id } = useParams()
   const [property, setProperty] = useState<ExclusiveProperty | null>(null)
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [randomAgent, setRandomAgent] = useState(() => {
-    return agents[Math.floor(Math.random() * agents.length)]
-  })
-
+  const [randomAgent, setRandomAgent] = useState<AgentProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const images = [
     property?.imageUrl,
@@ -41,8 +40,40 @@ export default function PropertyDetails() {
   ].filter(Boolean)
 
   useEffect(() => {
-    const foundProperty = exclusiveProperties.find(p => p.id === Number(id))
-    setProperty(foundProperty || null)
+    const fetchPropertyAndAgent = async () => {
+      setIsLoading(true)
+      const supabase = getSupabaseClient()
+      
+      try {
+        // Fetch property details
+        const { data: propertyData, error: propertyError } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('id', Number(id))
+          .single()
+          
+        if (propertyError) throw propertyError
+        setProperty(propertyData)
+        
+        // Fetch a random agent
+        const { data: agentsData, error: agentsError } = await supabase
+          .from('agents')
+          .select('*')
+          
+        if (agentsError) throw agentsError
+        
+        if (agentsData && agentsData.length > 0) {
+          const randomIndex = Math.floor(Math.random() * agentsData.length)
+          setRandomAgent(agentsData[randomIndex])
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    fetchPropertyAndAgent()
   }, [id])
 
   const nextImage = () => {
@@ -54,6 +85,14 @@ export default function PropertyDetails() {
   const prevImage = () => {
     setCurrentImageIndex((prev) => 
       prev === 0 ? images.length - 1 : prev - 1
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-xl">Loading property details...</div>
+      </div>
     )
   }
 
@@ -164,31 +203,37 @@ export default function PropertyDetails() {
                 <CardContent className="p-6">
                   <div className="text-xl font-semibold mb-6">Contact Agent</div>
                   
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="relative w-16 h-16 shadow-md rounded-full overflow-hidden">
-                      <Image
-                        src={randomAgent.profilePictureUrl}
-                        alt={randomAgent.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div>
-                      <div className="font-semibold">{randomAgent?.name}</div>
-                      <div className="text-space-darkgreen">Agent For {randomAgent.specialization}</div>
-                    </div>
-                  </div>
+                  {randomAgent ? (
+                    <>
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="relative w-16 h-16 shadow-md rounded-full overflow-hidden">
+                          <Image
+                            src={randomAgent.profilePictureUrl}
+                            alt={randomAgent.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="font-semibold">{randomAgent.name}</div>
+                          <div className="text-space-darkgreen">Agent For {randomAgent.specialization}</div>
+                        </div>
+                      </div>
 
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-5 h-5 text-space-darkgreen" />
-                      <span>{randomAgent.phoneNumber}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-space-darkgreen" />
-                      <span>{randomAgent.contactEmail}</span>
-                    </div>
-                  </div>
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center gap-3">
+                          <Phone className="w-5 h-5 text-space-darkgreen" />
+                          <span>{randomAgent.phoneNumber}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-5 h-5 text-space-darkgreen" />
+                          <span>{randomAgent.contactEmail}</span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-4">No agent information available</div>
+                  )}
 
                   <div className="space-y-3">
                     <Button onClick={() => setIsScheduleModalOpen(true)} className="w-full bg-space-darkgreen hover:bg-space-darkgreen/90">

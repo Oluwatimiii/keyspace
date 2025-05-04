@@ -7,7 +7,7 @@ const Contact = () => {
   return (
     <section className="bg-space-blacks md:p-10 w-full">
       <div className="w-full relative h-full flex items-center p-10 md:p-0 justify-center mx-auto md:rounded-3xl min-h-[600px] lg:min-h-[728px] bg-cover bg-top bg-no-repeat bg-[url('../assets/images/prop6.jpg')]">
-        <div className="w-full absolute top-0 left-0 h-full bg-black opacity-40" />
+        <div className="w-full absolute top-0 left-0 h-full bg-black opacity-70" />
 
         {/* contact card */}
         <div className="font-urbanist space-y-4 bg-white z-20 p-8 rounded-3xl max-w-lg md:absolute md:top-9 md:right-9">

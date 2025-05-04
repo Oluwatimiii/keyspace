@@ -13,9 +13,9 @@ export default function EstimateValue() {
   };
 
   return (
-    <div className="relative min-h-[70vh] bg-[url('../assets/images/estimatebg.jpg')] bg-no-repeat bg-center bg-cover">
+    <div className="relative  bg-[url('../assets/images/estimatebg.jpg')] bg-no-repeat bg-center bg-cover">
       <div className="w-full h-full mx-auto px-4 py-20 relative z-10 bg-black bg-opacity-60">
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-12 my-auto">
           <div className="space-y-5 font-inter text-center">
             <h2 className="text-4xl lg:text-5xl font-bold text-space-fades capitalize tracking-wide">
               Get Your Property Value Estimate

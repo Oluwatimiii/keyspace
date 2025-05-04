@@ -1,10 +1,13 @@
 "use client";
-import { useEffect, useRef, useState, ChangeEvent, MouseEvent } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import Image from "next/image";
+import { agents } from "@/assets/data/data";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const [inputValue, setInputValue] = useState<string>("");
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -19,57 +22,55 @@ export default function Hero() {
     return () => ctx.revert();
   }, []);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
-
-  const handleSubmit = (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-  };
+  // Take first 5 agents for the showcase
+  const showcaseAgents = agents.slice(0, 5);
 
   return (
     <section
       ref={heroRef}
-      className="relative min-h-[calc(100vh-4rem)] bg-[url('../assets/images/heropic.jpg')] bg-no-repeat bg-top bg-cover"
+      className="relative min-h-[calc(100vh-4rem)] bg-[url('../assets/images/heropic.jpg')] bg-no-repeat bg-cover bg-center"
     >
-      <div className="w-full max-w-[7xl] h-screen mx-auto px-4 relative z-10 bg-black bg-opacity-60">
-        <div className="pt-[4rem] space-y-5 font-inter">
-          <h1 className="text-5xl lg:text-6xl font-bold text-center md:text-start text-space-fades md:max-w-[65%] capitalize tracking-wide leading-[3.8rem]">
+      <div className="absolute inset-0 bg-black/80"></div>
+      <div className="relative z-10 container mx-auto px-4 h-full flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto py-16 space-y-8">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-space-fades capitalize tracking-wide leading-tight">
             Turning your real estate dream into reality
           </h1>
-          <p className="text-sm md:text-base mb-12 max-w-sm md:max-w-md mx-auto md:mx-0 font-playfair text-center md:text-start text-space-fades">
+          
+          <p className="text-sm md:text-base max-w-xl mx-auto font-playfair text-space-fades px-4">
             Find your perfect space or list your property with our modern
             platform. Elevate your lifestyle today.
           </p>
-          <div className="flex items-center gap-4 md:max-w-[60%] w-[95%] mx-auto md:mx-0 lg:max-w-[50%] rounded-[11px] p-2 bg-white">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              placeholder="Browse keyspace properties..."
-              className="p-4 focus:outline-none bg-transparent flex-1 placeholder-gray-400"
-            />
-            <button
-              onClick={handleSubmit}
-              className="flex items-center gap-2 rounded-[11px] justify-center bg-space-darkgreen text-white text-sm py-3 px-2 hover:bg-space-darkgreen/90 transition-all duration-75"
-            >
-              <span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.2}
-                  stroke="currentColor"
-                  className="size-5"
+          
+          {/* Find Property CTA Button */}
+          <div className="mt-6 mb-10">
+            <Link href="/find-space">
+              <button className="bg-space-greens text-space-darkgreen hover:bg-white px-8 py-4 rounded-full font-bold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                Find Property
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </Link>
+          </div>
+          
+          <div className="flex flex-col items-center space-y-4">
+            <div className="flex items-center -space-x-4">
+              {showcaseAgents.map((agent) => (
+                <div
+                  key={agent.id}
+                  className="relative w-10 sm:w-12 h-10 sm:h-12 rounded-full border-2 border-white overflow-hidden hover:z-10 transition-all hover:scale-110"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                  <Image
+                    src={agent.profilePictureUrl}
+                    alt={`Agent ${agent.name}`}
+                    fill
+                    className="object-cover"
                   />
-                </svg>
-              </span>
-            </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-space-fades text-sm">
+              Join <span className="font-bold">2,000+</span> property owners who trust Keyspace
+            </p>
           </div>
         </div>
       </div>

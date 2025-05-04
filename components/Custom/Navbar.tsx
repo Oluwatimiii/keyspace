@@ -51,6 +51,7 @@ export default function Navbar() {
   const user = useAuthStore((state) => state.user);
   const [currentLang, setCurrentLang] = useState("en");
   const [isPending, startTransition] = useTransition();
+  const isAgent = user?.user_metadata?.isAgent === true;
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -174,6 +175,14 @@ export default function Navbar() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator color="#0c3122" />
+                    {isAgent && (
+                      <DropdownMenuItem>
+                        <Link href="/authenticated/dashboard" className="flex items-center w-full">
+                          <Home className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem>
                       <Link
                         href="/profile/settings"
@@ -350,6 +359,18 @@ export default function Navbar() {
                     </div>
                   </div>
                   <div className="mt-3 space-y-1">
+                    {isAgent && (
+                      <Button
+                        className="w-full justify-start gap-2"
+                        asChild
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Link href="/authenticated/dashboard" className="bg-space-darkgreen">
+                          <Home className="h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </Button>
+                    )}
                     <Button
                       className="w-full justify-start gap-2"
                       asChild

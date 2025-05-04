@@ -25,14 +25,17 @@ export default async function FavoritesPage() {
     .select("productId")
     .eq("userId", user.id);
 
-    console.log(favoriteProperties)
+  
 
   if (error) {
     console.error("Error fetching favorite properties:", error);
   }
 
+  
   const favoritePropertyIds =
     favoriteProperties?.map((fav) => fav.productId) || [];
+
+    console.log("ids", favoritePropertyIds)
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-12 md:py-14 font-urbanist">

@@ -3,13 +3,40 @@
 import EstimateValue from "@/components/Custom/EstimateValue";
 import { Dash, HierarchySquare, MoneySend } from "iconsax-react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
+import { getSupabaseClient } from "@/utils/supabase/client";
+import { useState } from "react";
 
 export default function ListPropertyPage() {
   const router = useRouter()
+  const user = useAuthStore((state) => state.user);
+  const [checkingAgent, setCheckingAgent] = useState(false);
+
+  // Handler for the Start Listing button
+  const handleStartListing = async () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    setCheckingAgent(true);
+    const supabase = getSupabaseClient();
+    // Check if user is already an agent
+    const { data: agent, error } = await supabase
+      .from("agents")
+      .select("id")
+      .eq("userId", user.id)
+      .single();
+    setCheckingAgent(false);
+    if (agent && !error) {
+      router.push("/authenticated/dashboard");
+    } else {
+      router.push("/agent/register");
+    }
+  };
 
   return (
-    <section className="font-urbanist mx-auto">
-      <div className="min-h-screen w-full bg-[url('../assets/images/heropic.jpg')] bg-no-repeat bg-top bg-cover max-w-7xl">
+    <section className="font-urbanist mx-auto bg-black">
+      <div className="min-h-screen w-full bg-[url('../assets/images/heropic.jpg')] bg-no-repeat bg-top bg-cover max-w-7xl mx-auto">
         <div className="w-full h-screen mx-auto px-4 relative z-10 bg-black bg-opacity-80 flex flex-col items-center justify-center text-center">
           <div className="space-y-5 font-inter px-6 md:px-10">
             <h1 className="text-5xl lg:text-6xl font-bold text-center md:max-w-[900px] text-white capitalize tracking-wide leading-[3.8rem]">
@@ -66,8 +93,12 @@ export default function ListPropertyPage() {
               Become a Keyspace partner and list your property directly on our
               platform.
             </p>
-            <button onClick={() => router.push("/list-property/listing")} className="bg-space-darkgreen text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors">
-              Start Listing
+            <button
+              onClick={handleStartListing}
+              className="bg-space-darkgreen text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors"
+              disabled={checkingAgent}
+            >
+              {checkingAgent ? "Checking..." : "Start Listing"}
             </button>
           </div>
         </div>

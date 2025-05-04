@@ -36,6 +36,10 @@ export async function updateSession(request: NextRequest) {
    if (request.nextUrl.pathname.startsWith("/authenticated") && user.error) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+  
+   if (request.nextUrl.pathname.startsWith("/agent") && user.error) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   if (request.nextUrl.pathname.startsWith("/login") && !user.error) {
     return NextResponse.redirect(new URL("/", request.url));

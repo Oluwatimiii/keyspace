@@ -1,15 +1,43 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import PropertyCard from "../Custom/PropertyCard";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { exclusiveProperties } from "@/assets/data/data";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { getSupabaseClient } from "@/utils/supabase/client";
+import { ExclusiveProperty } from "@/assets/data/data";
 
 export default function Properties() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [properties, setProperties] = useState<ExclusiveProperty[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      const supabase = getSupabaseClient();
+      
+      try {
+        const { data, error } = await supabase
+          .from("properties")
+          .select("*")
+          .limit(6)
+
+        if (error) {
+          throw error;
+        }
+        console.log(data, "your data")
+        setProperties(data || []);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchProperties();
+  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -70,9 +98,16 @@ export default function Properties() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {exclusiveProperties.slice(0, 6).map((property) => (
-            <PropertyCard key={property.id} property={property}  />
-          ))}
+          {isLoading ? (
+            // Show loading skeletons
+            Array(6).fill(0).map((_, index) => (
+              <div key={index} className="h-[400px] bg-gray-200 animate-pulse rounded-lg"></div>
+            ))
+          ) : (
+            properties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))
+          )}
         </div>
 
         <div className="flex justify-center items-center mt-9">

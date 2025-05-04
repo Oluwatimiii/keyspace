@@ -6,9 +6,11 @@ import AgentCard from "@/components/Custom/AgentCard"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 export default function AgentPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const router = useRouter()
 
   return (
     <div className="min-h-screen bg-gray-50 font-urbanist">
@@ -28,6 +30,7 @@ export default function AgentPage() {
             <Button 
               className="bg-space-greens font-bold text-space-darkgreen hover:bg-white rounded-full px-6"
               size="lg"
+              onClick={() => router.push("/agent/register")}
             >
               Become an Agent
             </Button>
