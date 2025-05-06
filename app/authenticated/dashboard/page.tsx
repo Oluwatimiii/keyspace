@@ -11,11 +11,26 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 
+interface TourRequest {
+  id: string;
+  clientName: string;
+  clientEmail: string;
+  scheduledTime: string;
+  status: 'pending' | 'confirmed' | 'cancelled';
+  notes?: string;
+  agentId: string;
+  properties: {
+    name: string;
+    location: string;
+    imageUrl: string;
+  };
+}
+
 export default function DashboardPage() {
   const [isAgent, setIsAgent] = useState(false)
   const [agentProfile, setAgentProfile] = useState<AgentProfile | null>(null)
   const [properties, setProperties] = useState<ExclusiveProperty[]>([])
-  const [tourRequests, setTourRequests] = useState<any[]>([])
+  const [tourRequests, setTourRequests] = useState<TourRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'properties' | 'tours' | 'analytics'>('properties')
   const user = useAuthStore((state) => state.user)
@@ -154,7 +169,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <div className="font-bold text-lg text-gray-800">{agentProfile.name}</div>
-                <div className="text-space-darkgreen text-sm">{agentProfile.specialization} Agent</div>
+                <div className="text-space-darkgreen text-sm">{agentProfile.specialization}</div>
               </div>
             </div>
           )}
