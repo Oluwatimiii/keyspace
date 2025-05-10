@@ -24,7 +24,7 @@ export async function registerAgent(formData: FormData) {
       profileImage: profileImage ? 'Image received' : 'No image' 
     })
 
-    // Validate required fields one by one for better error messages
+    // Validate required fields
     if (!userId) return { error: 'User ID is missing' }
     if (!name) return { error: 'Name is required' }
     if (!location) return { error: 'Location is required' }

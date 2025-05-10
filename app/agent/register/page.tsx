@@ -10,7 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { registerAgent } from './actions'
 import { useAuthStore } from "@/store/authStore"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useToast } from "@/hooks/use-toast"
 import Image from 'next/image'
 
 export default function AgentPage() {
@@ -22,15 +23,36 @@ export default function AgentPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const user = useAuthStore((state) => state.user)
-
+  const searchParams = useSearchParams()
+  const { toast } = useToast()
+  
   console.log("user in register page", user)
   const router = useRouter()
+
+  // Check if redirected with a reason
+  useEffect(() => {
+    const reason = searchParams.get('reason')
+    
+    if (reason === 'agent_required') {
+      toast({
+        title: "Agent Registration Required",
+        description: "Your agent account was not found. You need to register as an agent to access this feature.",
+        variant: "default",
+      })
+    } else if (reason === 'access_denied') {
+      toast({
+        title: "Agent Access Only",
+        description: "This feature is only available to registered agents. Please complete the registration form.",
+        variant: "destructive",
+      })
+    }
+  }, [searchParams, toast])
 
   // List of popular cities for the location dropdown
   const cities = [
     "New York, USA", "Los Angeles, USA", "London, UK", "Paris, France",
     "Tokyo, Japan", "Sydney, Australia", "Dubai, UAE", "Mumbai, India",
-    "Toronto, Canada", "Berlin, Germany", "Madrid, Spain", "São Paulo, Brazil",
+    "Toronto, Canada", "Berlin, Germany", "Madrid, Spain", "São Paulo, Brazil", "Lagos, Nigeria",
     "Cape Town, South Africa", "Singapore", "Hong Kong", "Amsterdam, Netherlands",
     "Moscow, Russia", "Istanbul, Turkey", "Mexico City, Mexico", "Bangkok, Thailand"
   ]

@@ -19,7 +19,6 @@ import {
   Heart,
   Home,
   Users,
-  MessageSquare,
   Package,
   LogOut,
 } from "lucide-react";
@@ -203,15 +202,6 @@ export default function Navbar() {
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Link
-                        href="/profile/listings"
-                        className="flex items-center w-full"
-                      >
-                        <Home className="mr-2 h-4 w-4" />
-                        <span>My Listings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link
                         href="/profile/clients"
                         className="flex items-center w-full"
                       >
@@ -221,20 +211,11 @@ export default function Navbar() {
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Link
-                        href="/profile/messages"
-                        className="flex items-center w-full"
-                      >
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        <span>Messages</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link
-                        href="/profile/orders"
+                        href="/profile/schedules"
                         className="flex items-center w-full"
                       >
                         <Package className="mr-2 h-4 w-4" />
-                        <span>Orders</span>
+                        <span>Schedules</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -403,19 +384,6 @@ export default function Navbar() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Link
-                        href="/profile/listings"
-                        className="bg-space-darkgreen"
-                      >
-                        <Home className="h-4 w-4" />
-                        <span>My Listings</span>
-                      </Link>
-                    </Button>
-                    <Button
-                      className="w-full justify-start gap-2"
-                      asChild
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <Link
                         href="/profile/clients"
                         className="bg-space-darkgreen"
                       >
@@ -423,30 +391,18 @@ export default function Navbar() {
                         <span>Clients</span>
                       </Link>
                     </Button>
+                    
                     <Button
                       className="w-full justify-start gap-2"
                       asChild
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Link
-                        href="/profile/messages"
-                        className="bg-space-darkgreen"
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        <span>Messages</span>
-                      </Link>
-                    </Button>
-                    <Button
-                      className="w-full justify-start gap-2"
-                      asChild
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <Link
-                        href="/profile/orders"
+                        href="/profile/schedules"
                         className="bg-space-darkgreen"
                       >
                         <Package className="h-4 w-4" />
-                        <span>Orders</span>
+                        <span>Schedules</span>
                       </Link>
                     </Button>
                     <Button

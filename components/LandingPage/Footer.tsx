@@ -189,7 +189,7 @@ const Footer = () => {
 
         {/* Bottom section with copyright and policies */}
         <div className="pt-8 border-t-[0.1px] border-space-greens/5 font-urbanist flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-sm">&copy; 2024 Keyspace. All right reserved</p>
+          <p className="text-sm">&copy; 2025 Keyspace. All right reserved</p>
           <div className="flex space-x-6 text-sm">
             <Link
               href="/privacy-policy"

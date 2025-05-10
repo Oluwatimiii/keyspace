@@ -14,7 +14,7 @@ export interface ExclusiveProperty {
 }
 
 export interface AgentProfile {
-    id: number;
+    id: string | number;
     name: string;
     location: string;
     experience: string;
@@ -22,8 +22,25 @@ export interface AgentProfile {
     phoneNumber: string;
     profilePictureUrl: string;
     specialization: string;
-    rating: number;
+    rating: number | null;
     bio: string;
+    userId?: string;
+}
+
+export interface TourRequestData {
+    clientName: string;
+    clientEmail: string;
+    clientPhone: string;
+    preferredDate: string;
+    preferredTime: string;
+    scheduledTime: string;
+    notes: string;
+    status: string;
+    propertyId: string | number;
+    userId?: string;
+    createdAt: string;
+    updatedAt: string;
+    agentId?: string | number;
 }
 
 export const agents: AgentProfile[] = [

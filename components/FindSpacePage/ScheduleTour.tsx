@@ -9,21 +9,44 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useToast } from '@/hooks/use-toast'
+import { getSupabaseClient } from '@/utils/supabase/client'
 
 interface ScheduleTourProps {
   isOpen: boolean
   onClose: () => void
   propertyName: string
+  propertyStatus?: string
+  propertyId?: string | number
 }
 
-export function ScheduleTour({ isOpen, onClose, propertyName }: ScheduleTourProps) {
+// Add this interface for type safety
+interface TourRequestData {
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  preferredDate: string;
+  preferredTime: string;
+  scheduledTime: string;
+  notes: string;
+  status: string;
+  propertyId: string | number;
+  userId?: string;
+  createdAt: string;
+  updatedAt: string;
+  agentId?: string | number;
+}
+
+export function ScheduleTour({ isOpen, onClose, propertyName, propertyStatus = 'For Sale', propertyId }: ScheduleTourProps) {
   const user = useAuthStore((state) => state.user)
   const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     fullName: user?.user_metadata?.name || '',
     email: user?.email || '',
     phoneNumber: '',
     additionalDetails: '',
+    preferredDate: '',
+    preferredTime: '',
     agreeToTerms: false
   })
 
@@ -36,26 +59,112 @@ export function ScheduleTour({ isOpen, onClose, propertyName }: ScheduleTourProp
     setFormData(prev => ({ ...prev, agreeToTerms: checked }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    toast({
-      title: "Tour Scheduled",
-      description: "The agent has received your request and will contact you soon.",
-    })
-    clearForm() // Clear the form after successful submission
-    onClose()
+    
+    if (propertyStatus === 'Sold') {
+      toast({
+        title: "Property Unavailable",
+        description: "This property is sold and not available for tours.",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    if (!propertyId) {
+      toast({
+        title: "Error",
+        description: "Property ID is missing. Please try again later.",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    setIsSubmitting(true)
+    
+    try {
+      const supabase = getSupabaseClient()
+      
+      // First, get the agent ID associated with this property
+      const { data: propertyData, error: propertyError } = await supabase
+        .from('properties')
+        .select('agentId')
+        .eq('propertyId', propertyId)
+        .single()
+      
+      if (propertyError && propertyError.code !== 'PGRST116') {
+        throw new Error("Failed to retrieve property information")
+      }
+      
+      // Format date and time for database
+      const scheduledDateTime = new Date(`${formData.preferredDate}T${formData.preferredTime}:00`)
+      
+      // Update the tourRequestData creation with proper typing
+      const tourRequestData: TourRequestData = {
+        clientName: formData.fullName,
+        clientEmail: formData.email,
+        clientPhone: formData.phoneNumber,
+        preferredDate: formData.preferredDate,
+        preferredTime: formData.preferredTime,
+        scheduledTime: scheduledDateTime.toISOString(),
+        notes: formData.additionalDetails,
+        status: 'pending',
+        propertyId: propertyId,
+        userId: user?.id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      
+      // Add agentId if the property has one, otherwise it's a company listing
+      if (propertyData && propertyData.agentId) {
+        tourRequestData.agentId = propertyData.agentId
+      } else {
+        // For company listings, store without an agentId
+        // Company admins will see all requests without agentId
+        console.log('Company-listed property, no agent assigned')
+      }
+      
+      // Create the tour request in the database
+      const { error: insertError } = await supabase
+        .from('tourschedule')
+        .insert(tourRequestData)
+      
+      if (insertError) {
+        throw new Error(insertError.message)
+      }
+      
+      toast({
+        title: "Tour Scheduled",
+        description: propertyData && propertyData.agentId 
+          ? "Your tour request has been submitted successfully. The agent will contact you soon."
+          : "Your tour request has been submitted successfully. Our team will contact you soon.",
+      })
+      clearForm()
+      onClose()
+    } catch (error) {
+      console.error("Tour scheduling error:", error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to schedule tour. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const clearForm = () => {
     setFormData({
-      fullName: user?.user_metadata?.full_name || "",
+      fullName: user?.user_metadata?.name || "",
       email: user?.email || "",
       phoneNumber: "",
       additionalDetails: "",
+      preferredDate: "",
+      preferredTime: "",
       agreeToTerms: false,
     })
   }
+  
   if (!user) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -64,6 +173,22 @@ export function ScheduleTour({ isOpen, onClose, propertyName }: ScheduleTourProp
             <DialogTitle>Login Required</DialogTitle>
             <DialogDescription>
               Please log in to schedule a tour.
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={onClose}>Close</Button>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  if (propertyStatus === 'Sold') {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Property Unavailable</DialogTitle>
+            <DialogDescription>
+              This property is sold and not available for tours.
             </DialogDescription>
           </DialogHeader>
           <Button onClick={onClose}>Close</Button>
@@ -88,8 +213,8 @@ export function ScheduleTour({ isOpen, onClose, propertyName }: ScheduleTourProp
               value={formData.fullName}
               onChange={handleInputChange}
               required
-              readOnly={!!user?.user_metadata?.full_name}
-              className={user?.user_metadata?.full_name ? "bg-gray-100" : ""}
+              readOnly={!!user?.user_metadata?.name}
+              className={user?.user_metadata?.name ? "bg-gray-50" : ""}
             />
           </div>
           <div>
@@ -102,7 +227,7 @@ export function ScheduleTour({ isOpen, onClose, propertyName }: ScheduleTourProp
               onChange={handleInputChange}
               required
               readOnly={!!user?.email}
-              className={user?.email ? "bg-gray-100" : ""}
+              className={user?.email ? "bg-gray-50" : ""}
             />
           </div>
           <div>
@@ -116,6 +241,31 @@ export function ScheduleTour({ isOpen, onClose, propertyName }: ScheduleTourProp
               required
             />
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="preferredDate">Preferred Date</Label>
+              <Input
+                id="preferredDate"
+                name="preferredDate"
+                type="date"
+                min={new Date().toISOString().split('T')[0]}
+                value={formData.preferredDate}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="preferredTime">Preferred Time</Label>
+              <Input
+                id="preferredTime"
+                name="preferredTime"
+                type="time"
+                value={formData.preferredTime}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </div>
           <div>
             <Label htmlFor="additionalDetails">Additional Details</Label>
             <Textarea
@@ -123,6 +273,7 @@ export function ScheduleTour({ isOpen, onClose, propertyName }: ScheduleTourProp
               name="additionalDetails"
               value={formData.additionalDetails}
               onChange={handleInputChange}
+              placeholder="Any specific questions or requirements for the tour?"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -137,8 +288,12 @@ export function ScheduleTour({ isOpen, onClose, propertyName }: ScheduleTourProp
               on how we use your data.
             </Label>
           </div>
-          <Button type="submit" className="w-full" disabled={!formData.agreeToTerms}>
-            Schedule Tour
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={!formData.agreeToTerms || isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Schedule Tour"}
           </Button>
         </form>
       </DialogContent>

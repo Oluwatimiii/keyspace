@@ -88,7 +88,7 @@ export default function PropertyCard({ property, onFavoriteChange }: PropertyCar
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to manage favorites.",
+        description: "Please sign in to favorite a property.",
         variant: "destructive",
       })
       return

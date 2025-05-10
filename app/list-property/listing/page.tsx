@@ -27,8 +27,8 @@ export default function ListPropertyPage() {
   const [location, setLocation] = useState('')
   const [price, setPrice] = useState('')
   const [landSize, setLandSize] = useState('')
-  const [numberOfBeds, setNumberOfBeds] = useState<number>(0)
-  const [numberOfBaths, setNumberOfBaths] = useState<number>(0)
+  const [numberOfBeds, setNumberOfBeds] = useState<string>('')
+  const [numberOfBaths, setNumberOfBaths] = useState<string>('')
   const [status, setStatus] = useState('For Sale')
   
   // Image upload state
@@ -84,6 +84,25 @@ export default function ListPropertyPage() {
     try {
       const supabase = getSupabaseClient()
       
+      // First, verify that the user is still an agent by checking the agents table
+      const { data: agentData, error: agentError } = await supabase
+        .from('agents')
+        .select('id')
+        .eq('userId', user.id)
+        .single()
+      
+      // If there's an error or no agent data, the user is not a valid agent
+      if (agentError || !agentData) {
+        // Update user metadata if needed
+        if (user.user_metadata?.isAgent) {
+          await supabase.auth.updateUser({
+            data: { isAgent: false }
+          })
+        }
+        
+        throw new Error("You are not authorized to list properties. Your agent account may have been removed.")
+      }
+      
       // We'll let Supabase handle the ID autoincrement
       // But first check the max ID to help diagnose any issues
       const { data: maxIdData } = await supabase
@@ -94,18 +113,7 @@ export default function ListPropertyPage() {
       
       console.log('Current max ID in properties table:', maxIdData?.[0]?.id || 'No properties found')
       
-      // Get agent ID
-      const { data: agentData, error: agentError } = await supabase
-        .from('agents')
-        .select('id')
-        .eq('userId', user.id)
-        .single()
-      
-      if (agentError && agentError.code !== 'PGRST116') {
-        throw new Error("Failed to retrieve agent information")
-      }
-      
-      const agentId = agentData?.id
+      const agentId = agentData.id
       
       // Upload image to storage
       const fileExt = selectedImage.name.split('.').pop()
@@ -145,11 +153,11 @@ export default function ListPropertyPage() {
         location,
         price,
         landSize,
-        numberOfBeds,
-        numberOfBaths,
+        numberOfBeds: numberOfBeds === '' ? 0 : parseInt(numberOfBeds),
+        numberOfBaths: numberOfBaths === '' ? 0 : parseInt(numberOfBaths),
         status,
         imageUrl: urlData.publicUrl,
-        agentId: agentData?.id,
+        agentId: agentId, // Use the verified agent ID
       }
       
       // Insert with explicit id to avoid conflicts
@@ -175,6 +183,19 @@ export default function ListPropertyPage() {
         description: error instanceof Error ? error.message : "Failed to create property listing",
         variant: "destructive",
       })
+      
+      // If the error was related to agent authorization, redirect to dashboard
+      if (error instanceof Error && error.message.includes("not authorized")) {
+        toast({
+          title: "Agent Registration Required",
+          description: "You need to be registered as an agent to list properties on Keyspace.",
+          variant: "destructive",
+        });
+        
+        setTimeout(() => {
+          router.push('/agent/register')
+        }, 2000)
+      }
     } finally {
       setIsLoading(false)
       setUploadProgress(0)
@@ -250,7 +271,7 @@ export default function ListPropertyPage() {
                         type="number" 
                         min="0"
                         value={numberOfBeds}
-                        onChange={(e) => setNumberOfBeds(parseInt(e.target.value))}
+                        onChange={(e) => setNumberOfBeds(e.target.value)}
                         required
                       />
                     </div>
@@ -261,7 +282,7 @@ export default function ListPropertyPage() {
                         type="number" 
                         min="0"
                         value={numberOfBaths}
-                        onChange={(e) => setNumberOfBaths(parseInt(e.target.value))}
+                        onChange={(e) => setNumberOfBaths(e.target.value)}
                         required
                       />
                     </div>

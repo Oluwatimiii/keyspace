@@ -4,22 +4,30 @@ import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { AgentProfile, ExclusiveProperty } from "@/assets/data/data"
-import { CalendarClock, Clock, Home, ListChecks, MessageSquare, Plus, User } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { CalendarClock, Clock, Home, ListChecks, MessageSquare, Plus, User, Phone, Trash2 } from "lucide-react"
 import { getSupabaseClient } from "@/utils/supabase/client"
 import { useAuthStore } from "@/store/authStore"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
 
 interface TourRequest {
   id: string;
   clientName: string;
   clientEmail: string;
+  clientPhone: string;
+  preferredDate: string;
+  preferredTime: string;
   scheduledTime: string;
   status: 'pending' | 'confirmed' | 'cancelled';
   notes?: string;
   agentId: string;
-  properties: {
+  propertyId: string | number;
+  userId: string;
+  createdAt: string;
+  property?: {
     name: string;
     location: string;
     imageUrl: string;
@@ -31,10 +39,13 @@ export default function DashboardPage() {
   const [agentProfile, setAgentProfile] = useState<AgentProfile | null>(null)
   const [properties, setProperties] = useState<ExclusiveProperty[]>([])
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([])
+  const [companyTourRequests, setCompanyTourRequests] = useState<TourRequest[]>([])
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'properties' | 'tours' | 'analytics'>('properties')
+  const [activeTab, setActiveTab] = useState<'properties' | 'tours' | 'analytics' | 'company-tours'>('properties')
   const user = useAuthStore((state) => state.user)
   const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
     async function fetchAgentData() {
@@ -42,55 +53,121 @@ export default function DashboardPage() {
       const supabase = getSupabaseClient()
       
       try {
-        // Check if user is an agent
-        const isAgentUser = user?.user_metadata?.isAgent === true
-        setIsAgent(isAgentUser)
+        if (!user) {
+          // Redirect to login if no user
+          router.push('/login')
+          return
+        }
+
+        // First, check if the agent record actually exists
+        const { data: agentData, error: agentError } = await supabase
+          .from('agents')
+          .select('*')
+          .eq('userId', user.id)
+          .single()
         
-        if (isAgentUser) {
-          // Fetch agent profile
-          const { data: agentData, error: agentError } = await supabase
-            .from('agents')
+        // Determine if user is actually an agent (must have record in agents table)
+        const isValidAgent = !!agentData && !agentError
+        setIsAgent(isValidAgent)
+        
+        // Update user metadata if it's incorrect (user thinks they're an agent but they're not)
+        if (user?.user_metadata?.isAgent && !isValidAgent) {
+          // Their agent record was deleted, update their metadata
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: { isAgent: false }
+          })
+          
+          if (updateError) {
+            console.error('Failed to update user metadata:', updateError)
+          } else {
+            toast({
+              title: "Agent Status Updated",
+              description: "You do not have an agent account. Would you like to register ?",
+              variant: "destructive",
+              action: (
+                <Button 
+                  className="bg-space-greens text-space-darkgreen hover:bg-white" 
+                  onClick={() => router.push('/agent/register')}
+                >
+                  Register Again
+                </Button>
+              )
+            })
+          }
+        }
+        
+        
+        // If trying to access dashboard but not an agent, redirect to agent registration
+        if (!isValidAgent && !user.user_metadata?.isAdmin) {
+          toast({
+            title: "Agent Access Required",
+            description: "You need to be registered as an agent to access the dashboard.",
+            variant: "destructive",
+          });
+          
+          setTimeout(() => {
+            router.push('/agent/register');
+          }, 2000);
+          return;
+        }
+        
+        // Check if user is admin
+        const isAdminUser = user?.user_metadata?.isAdmin === true
+        setIsAdmin(isAdminUser)
+        
+        if (isValidAgent) {
+          setAgentProfile(agentData)
+          
+          // Fetch properties associated with this agent
+          const { data: propertiesData, error: propertiesError } = await supabase
+            .from('properties')
             .select('*')
-            .eq('userId', user.id)
-            .single()
+            .eq('agentId', agentData.id)
             
-          if (agentError && agentError.code !== 'PGRST116') {
-            console.log('Error fetching agent profile:', agentError)
-          } else if (agentData) {
-            setAgentProfile(agentData)
+          if (propertiesError) {
+            console.log('Error fetching properties:', propertiesError)
+          } else {
+            setProperties(propertiesData || [])
+          }
+          
+          // Fetch tour requests
+          const { data: tourData, error: tourError } = await supabase
+            .from('tourschedule')
+            .select(`
+              *,
+              property:propertyId(name, location, imageUrl)
+            `)
+            .eq('agentId', agentData.id)
+            .order('createdAt', { ascending: false })
             
-            // Fetch properties associated with this agent
-            const { data: propertiesData, error: propertiesError } = await supabase
-              .from('properties')
-              .select('*')
-              .eq('agentId', agentData.id)
-              
-            if (propertiesError) {
-              console.log('Error fetching properties:', propertiesError)
-            } else {
-              setProperties(propertiesData || [])
-            }
+          if (tourError) {
+            setTourRequests([])
+            console.log('Error fetching tour requests:', tourError)
+          } else {
+            setTourRequests(tourData || [])
+          }
+        }
+        
+        // If user is admin, fetch company tour requests (those without agentId)
+        if (isAdminUser) {
+          const { data: companyTours, error: companyToursError } = await supabase
+            .from('tourschedule')
+            .select(`
+              *,
+              property:propertyId(name, location, imageUrl)
+            `)
+            .is('agentId', null)
+            .order('createdAt', { ascending: false })
             
-            // Fetch tour requests
-            const { data: tourData, error: tourError } = await supabase
-              .from('tourRequests')
-              .select(`
-                *,
-                properties(name, location, imageUrl)
-              `)
-              .eq('agentId', agentData.id)
-              .order('scheduledTime', { ascending: false })
-              
-            if (tourError) {
-              setTourRequests([])
-              console.log('Error fetching tour requests:', tourError)
-            } else {
-              setTourRequests(tourData || [])
-            }
+          if (companyToursError) {
+            console.log('Error fetching company tour requests:', companyToursError)
+            setCompanyTourRequests([])
+          } else {
+            setCompanyTourRequests(companyTours || [])
           }
         }
       } catch (error) {
-        console.log('Error in fetching agent data:', error)
+        console.log('Error in fetching data:', error)
       } finally {
         setIsLoading(false)
       }
@@ -147,6 +224,132 @@ export default function DashboardPage() {
     )
   }
 
+  const handleConfirmTour = async (tourId: string) => {
+    try {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase
+        .from('tourschedule')
+        .update({ 
+          status: 'confirmed',
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', tourId);
+        
+      if (error) throw error;
+      
+      // Update local state to reflect the change
+      setTourRequests(prev => 
+        prev.map(tour => 
+          tour.id === tourId ? { ...tour, status: 'confirmed' } : tour
+        )
+      );
+      
+      toast({
+        title: "Tour Confirmed",
+        description: "The client has been notified about the confirmation.",
+      });
+    } catch (error) {
+      console.error('Error confirming tour:', error);
+      toast({
+        title: "Error",
+        description: "Failed to confirm tour. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCancelTour = async (tourId: string) => {
+    try {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase
+        .from('tourschedule')
+        .update({ 
+          status: 'cancelled',
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', tourId);
+        
+      if (error) throw error;
+      
+      // Update local state to reflect the change
+      setTourRequests(prev => 
+        prev.map(tour => 
+          tour.id === tourId ? { ...tour, status: 'cancelled' } : tour
+        )
+      );
+      
+      toast({
+        title: "Tour Declined",
+        description: "The client has been notified about the cancellation.",
+      });
+    } catch (error) {
+      console.error('Error cancelling tour:', error);
+      toast({
+        title: "Error",
+        description: "Failed to decline tour. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Add delete agent function
+  const handleDeleteAgentAccount = async () => {
+    setIsLoading(true);
+    try {
+      const supabase = getSupabaseClient();
+      
+      // First delete properties associated with this agent
+      const { error: propertiesError } = await supabase
+        .from('properties')
+        .delete()
+        .eq('agentId', agentProfile?.id);
+        
+      if (propertiesError) {
+        console.error("Error deleting properties:", propertiesError);
+        throw new Error("Failed to delete properties");
+      }
+      
+      // Then delete agent record
+      const { error: agentError } = await supabase
+        .from('agents')
+        .delete()
+        .eq('id', agentProfile?.id);
+        
+      if (agentError) {
+        console.error("Error deleting agent:", agentError);
+        throw new Error("Failed to delete agent account");
+      }
+      
+      // Update user metadata
+      const { error: userError } = await supabase.auth.updateUser({
+        data: { isAgent: false }
+      });
+      
+      if (userError) {
+        console.error("Error updating user metadata:", userError);
+        throw new Error("Failed to update user status");
+      }
+      
+      toast({
+        title: "Account Deleted",
+        description: "Your agent account has been successfully deleted.",
+      });
+      
+      // Force refresh the dashboard
+      window.location.href = '/authenticated/dashboard';
+      
+    } catch (error) {
+      console.error("Error during account deletion:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete account. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-yellow-50 font-urbanist pt-20">
       <div className="max-w-7xl mx-auto py-10 px-4 md:px-8">
@@ -170,6 +373,33 @@ export default function DashboardPage() {
               <div>
                 <div className="font-bold text-lg text-gray-800">{agentProfile.name}</div>
                 <div className="text-space-darkgreen text-sm">{agentProfile.specialization}</div>
+                
+                {/* Add delete agent account button */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800 mt-2 flex items-center gap-1">
+                      <Trash2 className="h-4 w-4" /> Delete Agent Account
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete your agent account, all your listings, and remove your access to agent features. 
+                        <span className="font-bold block mt-2 text-red-600">All properties you have listed will be deleted.</span>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDeleteAgentAccount}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        Delete Account
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           )}
@@ -264,6 +494,14 @@ export default function DashboardPage() {
                 >
                   Analytics
                 </button>
+                {isAdmin && (
+                  <button
+                    className={`pb-2 font-medium text-lg transition-colors ${activeTab === 'company-tours' ? 'border-b-2 border-space-darkgreen text-space-darkgreen' : 'text-gray-500 hover:text-space-darkgreen'}`}
+                    onClick={() => setActiveTab('company-tours')}
+                  >
+                    Company Tours
+                  </button>
+                )}
               </div>
 
               {/* Properties Tab */}
@@ -340,8 +578,8 @@ export default function DashboardPage() {
                           <div className="flex flex-col md:flex-row">
                             <div className="relative h-48 md:h-auto md:w-48 flex-shrink-0">
                               <Image
-                                src={request.properties.imageUrl}
-                                alt={request.properties.name}
+                                src={request.property?.imageUrl || 'https://images.pexels.com/photos/783745/pexels-photo-783745.jpeg?auto=compress&cs=tinysrgb&w=1200'}
+                                alt={request.property?.name || 'Property'}
                                 fill
                                 className="object-cover"
                               />
@@ -349,8 +587,8 @@ export default function DashboardPage() {
                             <CardContent className="flex-1 p-4">
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h3 className="text-lg font-bold">{request.properties.name}</h3>
-                                  <p className="text-gray-600">{request.properties.location}</p>
+                                  <h3 className="text-lg font-bold">{request.property?.name || 'Property'}</h3>
+                                  <p className="text-gray-600">{request.property?.location || 'Location not available'}</p>
                                 </div>
                                 <div className={`px-3 py-1 rounded-full text-sm font-medium ${
                                   request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -368,24 +606,37 @@ export default function DashboardPage() {
                                 </div>
                                 <div className="flex items-center">
                                   <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                                  <span>{new Date(request.scheduledTime).toLocaleString()}</span>
+                                  <span>{new Date(request.preferredDate + 'T' + request.preferredTime).toLocaleString()}</span>
                                 </div>
                                 <div className="flex items-center">
                                   <MessageSquare className="w-4 h-4 mr-2 text-gray-500" />
                                   <span>{request.clientEmail}</span>
                                 </div>
                                 <div className="flex items-center">
-                                  <ListChecks className="w-4 h-4 mr-2 text-gray-500" />
-                                  <span>{request.notes || 'No additional notes'}</span>
+                                  <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                                  <span>{request.clientPhone}</span>
                                 </div>
                               </div>
+                              {request.notes && (
+                                <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                                  <p className="font-medium text-xs text-gray-500 mb-1">Additional Notes:</p>
+                                  <p>{request.notes}</p>
+                                </div>
+                              )}
                               <div className="mt-4 flex gap-2">
                                 {request.status === 'pending' && (
                                   <>
-                                    <Button className="bg-space-darkgreen text-space-greens hover:bg-space-blacks">
+                                    <Button 
+                                      className="bg-space-darkgreen text-space-greens hover:bg-space-blacks"
+                                      onClick={() => handleConfirmTour(request.id)}
+                                    >
                                       Confirm
                                     </Button>
-                                    <Button variant="outline" className="text-red-600">
+                                    <Button 
+                                      variant="outline" 
+                                      className="text-red-600"
+                                      onClick={() => handleCancelTour(request.id)}
+                                    >
                                       Decline
                                     </Button>
                                   </>
@@ -462,6 +713,112 @@ export default function DashboardPage() {
                       </div>
                     </CardContent>
                   </Card>
+                </div>
+              )}
+
+              {/* Company Tour Requests Tab */}
+              {activeTab === 'company-tours' && isAdmin && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-bold mb-4">Company Property Tour Requests</h2>
+                  {companyTourRequests.length === 0 ? (
+                    <div className="bg-gray-50 p-8 rounded-lg shadow text-center">
+                      <CalendarClock className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Company Tour Requests</h3>
+                      <p className="text-muted-foreground">
+                        There are no pending tour requests for company-listed properties.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {companyTourRequests.map((request) => (
+                        <Card key={request.id} className="overflow-hidden rounded-xl">
+                          <div className="flex flex-col md:flex-row">
+                            <div className="relative h-48 md:h-auto md:w-48 flex-shrink-0">
+                              <Image
+                                src={request.property?.imageUrl || '/placeholder-property.jpg'}
+                                alt={request.property?.name || 'Property'}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <CardContent className="flex-1 p-4">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="text-lg font-bold">{request.property?.name || 'Property'}</h3>
+                                  <p className="text-gray-600">{request.property?.location || 'Location not available'}</p>
+                                  <div className="mt-1 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                    Company Property
+                                  </div>
+                                </div>
+                                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                  request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                  request.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                  'bg-red-100 text-red-800'
+                                }`}>
+                                  {request.status === 'pending' ? 'Pending' :
+                                   request.status === 'confirmed' ? 'Confirmed' : 'Cancelled'}
+                                </div>
+                              </div>
+                              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div className="flex items-center">
+                                  <User className="w-4 h-4 mr-2 text-gray-500" />
+                                  <span>{request.clientName}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                                  <span>{new Date(request.preferredDate + 'T' + request.preferredTime).toLocaleString()}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <MessageSquare className="w-4 h-4 mr-2 text-gray-500" />
+                                  <span>{request.clientEmail}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                                  <span>{request.clientPhone}</span>
+                                </div>
+                              </div>
+                              {request.notes && (
+                                <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                                  <p className="font-medium text-xs text-gray-500 mb-1">Additional Notes:</p>
+                                  <p>{request.notes}</p>
+                                </div>
+                              )}
+                              <div className="mt-4 flex gap-2">
+                                {request.status === 'pending' && (
+                                  <>
+                                    <Button 
+                                      className="bg-space-darkgreen text-space-greens hover:bg-space-blacks"
+                                      onClick={() => handleConfirmTour(request.id)}
+                                    >
+                                      Confirm
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      className="text-red-600"
+                                      onClick={() => handleCancelTour(request.id)}
+                                    >
+                                      Decline
+                                    </Button>
+                                    <Button 
+                                      variant="outline"
+                                      className="ml-auto"
+                                    >
+                                      Assign to Agent
+                                    </Button>
+                                  </>
+                                )}
+                                {request.status === 'confirmed' && (
+                                  <Button variant="outline">
+                                    Send Reminder
+                                  </Button>
+                                )}
+                              </div>
+                            </CardContent>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
