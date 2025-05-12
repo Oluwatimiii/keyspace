@@ -27,6 +27,7 @@ import prop4 from "@/assets/images/prop4.jpg"
 import prop3 from "@/assets/images/prop2.jpg"
 import { ScheduleTour } from '@/components/FindSpacePage/ScheduleTour'
 import { getSupabaseClient } from '@/utils/supabase/client'
+import Link from 'next/link'
 
 export default function PropertyDetails() {
   const { id } = useParams()
@@ -140,7 +141,7 @@ export default function PropertyDetails() {
           <h2 className="text-2xl font-bold text-space-darkgreen mb-2">Property Not Found</h2>
           <p className="text-gray-600 mb-6">We couldn't find the property you're looking for</p>
           <Button asChild className="bg-space-darkgreen text-space-greens hover:bg-space-blacks">
-            <a href="/find-space">Browse Other Properties</a>
+            <Link href="/find-space">Browse Other Properties</Link>
           </Button>
         </div>
       </div>
